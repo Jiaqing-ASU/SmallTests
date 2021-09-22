@@ -4,7 +4,6 @@ import math
 from numpy.lib.arraysetops import isin
 from sympy.utilities.iterables import multiset_permutations
 from sympy.utilities.iterables import multiset_combinations
-#from itertools import combinations, permutations
 import itertools
 import hashlib
 import numpy as np
@@ -166,102 +165,8 @@ class BinPackingScheme(object):
         return bin_set, used_bins
         #return used_bins
 
-"""
-1: INPUT1: 𝐼 (the item ids included in the tensor)
-2: INPUT2: 𝑙 (the maximum number of items for each bin)
-3: OUTPUT: P = {𝑃𝑘 } (a list of optimal bin-packing schemes)
-"""
-
-"""
-def pack(t, l):
-    I = set(t)
-    I = list(I)
-
-    P = set()
-    orderedList = I
-    k = 0
-    p_k = []
-    tensor_page_set = set()
-
-    seen_perm = {
-        frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l)): True
-    }
-
-    nextPermutation = multiset_permutations(orderedList)
-
-    perm = 0
-    while orderedList:
-        #print(f"Permutation {perm}")
-        perm += 1
-
-        i, j = 0, 0
-        p_i_j = BinPackingScheme(orderedList, l)
-
-        #print("stop1")
-
-        for item in orderedList:
-            # Use 1-index according to logic
-            i = I.index(item) + 1
-            j = math.ceil(orderedList.index(item) / l)
-            tensor_page_set.add(j-1)
-            p_i_j.mark(i, j)
-
-        #print("stop2")
-        p_k.append(p_i_j)
-        P = P.union(set([p_k[k]]))
-        k = k + 1
-
-        #print("stop3")
-
-        try:
-            key = frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l))
-            #print("stop4")
-            while seen_perm.get(key, False):
-                # print(f"Skipping")
-                orderedList = next(nextPermutation)
-                #print("stop5")
-                key = frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l))
-                #print("stop6")
-            #print("stop7")
-            seen_perm[key] = True
-        except StopIteration:
-            orderedList = None
-
-    # A set of BinPackingScheme's, each BinPackingScheme is a 2-D array -
-    # If Pij = 0, it means block i is not in page j;
-    # If Pij = 1, it means block i is in page j.
-    return P, tensor_page_set
-
-
-def test_pack():
-    # Unique items in tensor
-    I = [("t1", 0, 1), ("t1", 0, 0), ("t1", 1, 1)]
-    P = pack(I, 2)
-    import pdb
-    pdb.set_trace()
-
-"""
-
-#def cal_combinations(orderedList,l):
-    #return next_combinations = multiset_combinations(orderedList,l)
-
-
 def remove_a_from_b(list_a,list_b):
     return [val for val in list_b if val not in list_a]
-
-"""
-def itera(orderedList, all_combinations, current_combinations,l):
-    if len(orderedList) != 0:
-        # a set of possibile combination by selecting n from orderedList
-        list_combinations_of_n = list(multiset_combinations(orderedList, min(l,len(orderedList)))
-        for seleted_items in list_combinations_of_n:
-            orderedList_copy = orderedList.copy()
-            remove_a_from_b(seleted_items, orderedList_copy)
-            current_combinations_copy = current_combinations.copy()
-            itera(orderedList_copy, all_combinations, current_combinations_copy,l)
-    else:
-        all_combinations.append(current_combinations)
-"""
 
 def itera(orderedList, all_combinations, current_combinations,l):
     if len(orderedList) != 0:
@@ -292,28 +197,13 @@ def pack(t, l):
     seen_perm = {
         frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l)): True
     }
-    #print('ordered list', orderedList)
-    #stuff = [1, 2, 3]
-    #nextPermutation = set()
-    #for i in range (1, len(orderedList)/l - 1):
-        #for subset in itertools.combinations(orderedList, l):
-            #print(subset)
-            #nextPermutation = nextPermutation.union(subset)
-            #orderedList = orderedList - subset
-        #nextPermutation.append(subset)
-
-    #nextPermutation = multiset_permutations(orderedList)
-
 
     all_combinations = list()
     current_combinations = list()
     itera(orderedList, all_combinations, current_combinations,l)
     print(all_combinations)
     nextPermutation = ( y for y in all_combinations)
-    #print(all_combinations)
-
-    """
-
+    
     perm = 0
     while orderedList:
         #print(f"Permutation {perm}")
@@ -365,9 +255,8 @@ def pack(t, l):
 3: INPUT3: 𝑙 (the maximum number of items for each bin)
 4: OUTPUT: P = {𝑃𝑘 } (a list of optimal bin-packing schemes - a set of bin sets)
            A bin-packing scheme is a set of bins
-
-
 """
+
 def adjust(P_star, t, i, l, tensor_page_set):
 
     # Again, t can have duplicates?
@@ -409,10 +298,8 @@ def adjust(P_star, t, i, l, tensor_page_set):
     #print(P)
     tensor_page_mapping[i] = tensor_page_set
     return P, tensor_page_mapping
-
-"""
     
-def adjust(P_star, t, l):
+def adjust_dp(P_star, t, l):
     # Again, t can have duplicates?
     I = set(t)
 
@@ -424,41 +311,22 @@ def adjust(P_star, t, l):
     # If Pij = 1, it means block i is in page j.
     for P_k in P_star:
         bin_set, used_bins= P_k.findMinBinsMaxCover(I,l)
-        #test
-        #print("bin_set:")
-        #print(bin_set)
-        #print("----")
-        #print(used_bins)
-        
-        #set_data = [set(x) for x in bin_set]
-        #I_delta = I - set.union(*set_data)
-        
-        #I_delta = (I - bin_set).union(t)
         I_delta = I - bin_set
 
         #print(I_delta)
         I_delta = list(I_delta)
 
         if not I_delta:
-            #if P_k.numBins == minNumBins:
             P = P.union(set([P_k]))
-            #else:
-                #if P_k.numBins < minNumBins:
-            #P = set([P_k])
-                #minNumBins = P_k.numBins
         else:
             P_prime = pack(I_delta, l)
             for P_dash in P_prime:
                 P_new = P_dash.merge(P_k)
-                #if P_new.numBins == minNumBins:
                 P = P.union(set([P_new]))
-                #else:
-                    #if P_new.numBins < minNumBins:
-                #P = set([P_new])
-                    #minNumBins = P_new.numBins
     
     return P
-    
+ 
+
 def test_adjust():
     # Can have repeated elements
     t1 = [("t1", 0, 1), ("t1", 0, 0), ("t1", 0, 0), ("t1", 1, 1)]
@@ -468,11 +336,8 @@ def test_adjust():
 
     P = adjust(P_star, t2, l)
 
-    #import pdb
-    #pdb.set_trace()
 
-
-
+"""
 INPUT1: T (A set of tensors, each tensor is a set of block ids) - each can have duplicates?
 INPUT2: l (the maximum number of items that can be held in a bin)
 OUTPUT: P={𝑃𝑖} (a list of optimal bin-packing schemes)
@@ -578,6 +443,6 @@ def bin_pack_greedy(T, l):
 
             numBins = numBins + math.ceil(len(remaining_items) / l)
             p_i_j.numBins = numBins
-        tensor_page_mapping[i] = tensor_page_set
+        tensor_page_mapping[i-1] = tensor_page_set
 
     return set([p_i_j]), tensor_page_mapping
