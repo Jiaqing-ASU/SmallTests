@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 import numpy as np
@@ -28,7 +28,7 @@ for t in range(num_tensors):
 #print(list_of_tensors)
 
 
-# In[ ]:
+# In[2]:
 
 
 import numpy as np
@@ -200,8 +200,6 @@ blocks_in_page = 10 # page can have 10 blocks
 P = set()
 start = timeit.default_timer()
 P, tensor_page_mapping = bin_pack_greedy(list_of_tensors, blocks_in_page)
-#P = bin_pack_dp_greedy(list_of_tensors, blocks_in_page)
-#P = bin_pack_dp(list_of_tensors, blocks_in_page)
 
 stop = timeit.default_timer()
 print('Time: ', stop - start) 
@@ -210,7 +208,7 @@ print(L[0].numBins)
 block_page_list = L[0].p_i_j
 
 
-# In[ ]:
+# In[3]:
 
 
 import numpy as np
@@ -243,7 +241,7 @@ for i in range(len(block_page_list)):
 output = dict()
 output['block_page_mapping'] = block_page_mapping
 output['tensor_page_mapping'] = tensor_page_mapping
-np.save('page_pack_output.npy',output)
+np.save('greedy_page_pack_output.npy',output)
 
 
 # In[ ]:
