@@ -5,6 +5,9 @@
 
 
 import numpy as np
+import sys
+#file_path = sys.argv[1]
+#input = np.load(file_path, allow_pickle=True).item()
 input = np.load('detector_output.npy', allow_pickle=True).item()
 block_size = input.get('block_size')
 unique_blocks = len(input.get('list_blocks'))
@@ -196,17 +199,15 @@ def generate_random_tensors(
 blocks_in_page = 10 # page can have 10 blocks
 P = set()
 start = timeit.default_timer()
-
 P, tensor_page_mapping = bin_pack_greedy(list_of_tensors, blocks_in_page)
-#P, tensor_page_mapping = bin_pack_dp(list_of_tensors, blocks_in_page)
+#P = bin_pack_dp_greedy(list_of_tensors, blocks_in_page)
 #P = bin_pack_dp(list_of_tensors, blocks_in_page)
-#P = bin_pack_greedy(list_of_tensors, blocks_in_page)
+
 stop = timeit.default_timer()
 print('Time: ', stop - start) 
 L = list(P)
 print(L[0].numBins)
 block_page_list = L[0].p_i_j
-#print(block_page_list)
 
 
 # In[ ]:
@@ -218,8 +219,8 @@ block_page_mapping = dict()
 for i in range(len(block_page_list)):
     block_page_index = block_page_list[i].index(1)
     block_page_mapping[i] = block_page_index
-print("block_page_mapping\n")
-print(block_page_mapping)
+#print("block_page_mapping\n")
+#print(block_page_mapping)
 
 #tensor_page_mapping = dict()
 #tensor_page_whole_mapping = dict()
@@ -236,8 +237,8 @@ print(block_page_mapping)
 #    tensor_page_mapping[t] = one_tensor_list
 #    tensor_page_whole_mapping[t] = one_tensor_whole_list
 #
-print("tensor_page_mapping\n")
-print(tensor_page_mapping)
+#print("tensor_page_mapping\n")
+#print(tensor_page_mapping)
 
 output = dict()
 output['block_page_mapping'] = block_page_mapping

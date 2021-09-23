@@ -172,7 +172,7 @@ def itera(orderedList, all_combinations, current_combinations,l):
     if len(orderedList) != 0:
         # a set of possibile combination by selecting n from orderedList
         list_combinations_of_n = list(multiset_combinations(orderedList, min(l,len(orderedList))))
-        print(list_combinations_of_n)
+        #print(list_combinations_of_n)
         for seleted_items in list_combinations_of_n:
             orderedList_copy = orderedList.copy()
             orderedList_copy = remove_a_from_b(seleted_items, orderedList_copy)
@@ -201,7 +201,7 @@ def pack(t, l):
     all_combinations = list()
     current_combinations = list()
     itera(orderedList, all_combinations, current_combinations,l)
-    print(all_combinations)
+    #print(all_combinations)
     nextPermutation = ( y for y in all_combinations)
     
     perm = 0
@@ -237,8 +237,8 @@ def pack(t, l):
                 orderedList = next(nextPermutation)
                 #orderedList = nextPermutation[items]
                 #items += 1
-                print("orderedList:")
-                print(orderedList)
+                #print("orderedList:")
+                #print(orderedList)
                 key = frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l))
             seen_perm[key] = True
         except StopIteration:
@@ -257,7 +257,7 @@ def pack(t, l):
            A bin-packing scheme is a set of bins
 """
 
-def adjust(P_star, t, i, l, tensor_page_set):
+def adjust(P_star, t, l):
 
     # Again, t can have duplicates?
     I = set(t)
@@ -265,14 +265,12 @@ def adjust(P_star, t, i, l, tensor_page_set):
     minNumBins = math.inf
     P = set()
 
-    tensor_page_mapping = dict()
-    
     # P_k is a BinPackingScheme which is a 2-D array -
     # If Pij = 0, it means block i is not in page j;
     # If Pij = 1, it means block i is in page j.
     for P_k in P_star:
         bin_set, used_bins = P_k.findMinBinsMaxCover(I,l)
-        tensor_page_set = used_bins
+        #tensor_page_set = used_bins
         I_delta = I - bin_set
         I_delta = list(I_delta)
 
@@ -296,10 +294,10 @@ def adjust(P_star, t, i, l, tensor_page_set):
                         P = set([P_new])
                         minNumBins = P_new.numBins
     #print(P)
-    tensor_page_mapping[i] = tensor_page_set
-    return P, tensor_page_mapping
+    #tensor_page_mapping[i] = tensor_page_set
+    return P
     
-def adjust_dp(P_star, t, l):
+def adjust_greedy(P_star, t, l):
     # Again, t can have duplicates?
     I = set(t)
 
@@ -346,14 +344,26 @@ OUTPUT: P={𝑃𝑖} (a list of optimal bin-packing schemes)
 def bin_pack_dp(T, l):
     initialized = False
     P_star = None
+    tensor_page_mapping = dict()
+    tensor_page_set = set()
     for t_i in T:
         if not initialized:
             P_star = pack(t_i, l)
-            print("P_star:")
-            print(P_star)
             initialized = True
         else:
             P_star = adjust(P_star, t_i, l)
+
+    return P_star
+
+def bin_pack_dp_greedy(T, l):
+    initialized = False
+    P_star = None
+    for t_i in T:
+        if not initialized:
+            P_star = pack(t_i, l)
+            initialized = True
+        else:
+            P_star = adjust_greedy(P_star, t_i, l)
 
     return P_star
 
