@@ -39,9 +39,20 @@ block_page_mapping:      a list of block IDs mapped to page IDs
 tensor_page_mapping:	 a list of tensor IDs mapped to page IDs
 						 e.g. 0: {185,183,90,27} means tensor #0 needs page #185, #183, #90 and #27
 
-If you run the other 2 scripts, you will also have an output file under the same folder. It is a dictionary object saved in a .npy file named dp_page_pack_output.npy or dp_greedy_page_pack_output.npy. However, this file will only have the following information:
+If you run the other 2 scripts, you will also have an output file under the same folder. It is a dictionary object saved in a .npy file named dp_page_pack_output.npy or dp_greedy_page_pack_output.npy. However, since these 2 algorithms might have more than 1 optimal plan, the output might be multiple:
+
 
 Key: Value
 
-block_page_mapping:      a list of block IDs mapped to page IDs
-						 e.g. 0:211 means block #0 is in page #211
+
+block_page_mapping0:     a list of block IDs mapped to page IDs
+                         e.g. 0:211 means block #0 is in page #211
+tensor_page_mapping0:    a list of tensor IDs mapped to page IDs
+                         e.g. 0: {185,183,90,27} means tensor #0 needs page #185, #183, #90 and #27
+
+block_page_mapping1:     a list of block IDs mapped to page IDs
+                         e.g. 0:211 means block #0 is in page #211
+tensor_page_mapping1:    a list of tensor IDs mapped to page IDs
+                         e.g. 0: {185,183,90,27} means tensor #0 needs page #185, #183, #90 and #27
+
+............
