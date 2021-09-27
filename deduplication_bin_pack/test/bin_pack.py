@@ -387,7 +387,11 @@ def order_tensor_blocks_by_freq(T, t_i):
             if block in freq_map:
                 freq_map[block] += 1
 
+    #print(freq_map)
+
     ordered_items = sorted(freq_map.items(), key=lambda x: x[1], reverse=True)
+    #print(ordered_items)
+    #print ([x[0] for x in ordered_items])
     return [x[0] for x in ordered_items]
 
 def len_unique_items(T):
@@ -414,7 +418,11 @@ def bin_pack_greedy(T, l):
     tensors = order_tensors_by_size(T)
     # Add tensor t1
     items = order_tensor_blocks_by_freq(T, tensors[0])
+    #print(items)
 
+    #print(I)
+    #print(type(I))
+    
     i, j = 0, 0
     p_i_j = BinPackingScheme(I, l)
 
@@ -422,8 +430,11 @@ def bin_pack_greedy(T, l):
     for i in range(1, len(items) + 1):
         # Use 1-index according to logic
         j = I.index(items[i - 1]) + 1
-        s = math.ceil(j / l)
+        #s = math.ceil(j / l)
+        s = math.ceil(i / l)
         tensor_page_set.add(s-1)
+        #print('j=',j)
+        #print('s=',s)
         p_i_j.mark(j, s)
 
     numBins = math.ceil(len(items) / l)
