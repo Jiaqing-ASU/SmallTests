@@ -40,28 +40,31 @@ from sympy.utilities.iterables import multiset_permutations
 import hashlib
 import numpy as np
 
-#def order_tensors_by_small_size(T):
-    #return sorted(T, key=lambda x: len(x), reverse=False)
-
-def bin_pack_base(T, l):
+def bin_pack_base_id(T, l, num_blocks):
     I = set()
     for t_i in T:
         I = I.union(t_i)
     I = list(I)
     
-    items = T[0]
+    #items = T[0]
 
     i, j = 0, 0
     p_i_j = BinPackingScheme(I, l)
-
+    
+    print(len(I))
     # Process at all items in t0
-    for i in range(1, len(items) + 1):
+    #for i in range(1, len(items) + 1):
         # Use 1-index according to logic
-        j = I.index(items[i - 1]) + 1
-        s = math.ceil(i / l)
+        #j = I.index(items[i - 1]) + 1
+        #s = math.ceil(i / l)
+        #p_i_j.mark(j, s)
+        
+    for i in range(1, num_blocks):
+        j = i + 1
+        s = math.ceil(i / l) + 1
         p_i_j.mark(j, s)
-
-    numBins = math.ceil(len(items) / l)
+    
+    numBins = math.ceil(num_blocks / l)
 
     # Already added tensor t1
     for i in range(2, len(T) + 1):
@@ -100,13 +103,11 @@ P = set()
 #list_of_tensors = order_tensors_by_small_size(list_of_tensors)
 start = timeit.default_timer()
 #P, tensor_page_mapping = bin_pack_greedy(list_of_tensors, blocks_in_page)
-P = bin_pack_base(list_of_tensors, blocks_in_page)
+P = bin_pack_base_id(list_of_tensors, blocks_in_page,1050)
 stop = timeit.default_timer()
 print('Time: ', stop - start) 
 L = list(P)
 print(L[0].numBins)
-#block_page_list = L[0].p_i_j
-#print(block_page_list)
 
 
 # In[ ]:

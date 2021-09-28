@@ -371,6 +371,9 @@ def bin_pack_dp_greedy(T, l):
 def order_tensors_by_size(T):
     return sorted(T, key=lambda x: len(x), reverse=True)
 
+def order_tensors_by_size_small(T):
+    return sorted(T, key=lambda x: len(x), reverse=False)
+
 def order_tensor_blocks_by_freq(T, t_i):
     freq_map = {}
     for block in t_i:
@@ -416,6 +419,68 @@ def bin_pack_greedy(T, l):
     tensor_page_set = set()
     
     tensors = order_tensors_by_size(T)
+    # Add tensor t1
+    items = order_tensor_blocks_by_freq(T, tensors[0])
+    #print(items)
+
+    #print(I)
+    #print(type(I))
+    
+    i, j = 0, 0
+    p_i_j = BinPackingScheme(I, l)
+
+    # Process at all items in t0
+    for i in range(1, len(items) + 1):
+        # Use 1-index according to logic
+        j = I.index(items[i - 1]) + 1
+        #s = math.ceil(j / l)
+        s = math.ceil(i / l)
+        tensor_page_set.add(s-1)
+        #print('j=',j)
+        #print('s=',s)
+        p_i_j.mark(j, s)
+
+    numBins = math.ceil(len(items) / l)
+    p_i_j.numBins = numBins
+    tensor_page_mapping[0] = tensor_page_set
+
+
+    # Already added tensor t1
+    for i in range(2, len(T) + 1):
+        bin_set, used_bins = p_i_j.findMinBinsMaxCover(tensors[i - 1],l)
+        tensor_page_set = used_bins
+        #print("tensor_page_set")
+        #print(tensor_page_set)
+        I_delta = set(tensors[i - 1]) - bin_set
+        I_delta = list(I_delta)
+
+        if not I_delta:
+            continue
+        else:
+            remaining_items = order_tensor_blocks_by_freq(T, I_delta)
+            for j in range(1, len(remaining_items) + 1):
+                # Important to index using I because we built BinPackingScheme using ordering of blocks in I
+                s = I.index(remaining_items[j - 1]) + 1
+                u = numBins + math.ceil(j / l)
+                tensor_page_set.add(u-1)
+                p_i_j.mark(s, u)
+
+            numBins = numBins + math.ceil(len(remaining_items) / l)
+            p_i_j.numBins = numBins
+        tensor_page_mapping[i-1] = tensor_page_set
+
+    return set([p_i_j]), tensor_page_mapping
+
+def bin_pack_greedy_small2large(T, l):
+    I = set()
+    for t_i in T:
+        I = I.union(t_i)
+    I = list(I)
+
+    tensor_page_mapping = dict()
+    tensor_page_set = set()
+    
+    tensors = order_tensors_by_size_small(T)
     # Add tensor t1
     items = order_tensor_blocks_by_freq(T, tensors[0])
     #print(items)
