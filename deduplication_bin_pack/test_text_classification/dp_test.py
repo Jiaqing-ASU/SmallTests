@@ -80,7 +80,23 @@ for t in range(num_tensors_4):
             l.append(tensor_mapping_4[t].get((i,j)))
     list_of_tensors.append(l)
 
-num_tensors = num_tensors_1 + num_tensors_2 + num_tensors_3 + num_tensors_4
+input_5 = np.load('yelp_nontrainable.npy', allow_pickle=True).item()
+block_size_5 = input_5.get('block_size')
+tensor_shapes_5 = input_5.get('blocked_tensor_dimension')
+tensor_mapping_5 = input_5.get('tensor_mapping')
+num_tensors_5 = len(tensor_shapes_5)
+
+for i in range (num_tensors_5):
+    tensor_shapes_5[i] = input_5.get('blocked_tensor_dimension')[i]
+for t in range(num_tensors_5):
+    first, snd = tensor_shapes_5[t]
+    l = list()
+    for i in range(first):
+        for j in range(snd):
+            l.append(tensor_mapping_5[t].get((i,j)))
+    list_of_tensors.append(l)
+    
+num_tensors = num_tensors_1 + num_tensors_2 + num_tensors_3 + num_tensors_4 + num_tensors_5
 
 #print(list_of_tensors)
 #print(num_tensors)

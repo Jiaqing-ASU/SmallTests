@@ -14,6 +14,7 @@ list_of_tensors = list()
 
 input_1 = np.load('civil_trainable.npy', allow_pickle=True).item()
 block_size_1 = input_1.get('block_size')
+#unique_blocks_1 = len(input_1.get('list_blocks'))
 tensor_shapes_1 = input_1.get('blocked_tensor_dimension')
 tensor_mapping_1 = input_1.get('tensor_mapping')
 num_tensors_1 = len(tensor_shapes_1)
@@ -30,6 +31,7 @@ for t in range(num_tensors_1):
 
 input_2 = np.load('imdb_trainable.npy', allow_pickle=True).item()
 block_size_2 = input_2.get('block_size')
+#unique_blocks_2 = len(input_2.get('list_blocks'))
 tensor_shapes_2 = input_2.get('blocked_tensor_dimension')
 tensor_mapping_2 = input_2.get('tensor_mapping')
 num_tensors_2 = len(tensor_shapes_2)
@@ -46,6 +48,7 @@ for t in range(num_tensors_2):
 
 input_3 = np.load('imdb_nontrainable.npy', allow_pickle=True).item()
 block_size_3 = input_3.get('block_size')
+#unique_blocks_3 = len(input_3.get('list_blocks'))
 tensor_shapes_3 = input_3.get('blocked_tensor_dimension')
 tensor_mapping_3 = input_3.get('tensor_mapping')
 num_tensors_3 = len(tensor_shapes_3)
@@ -62,6 +65,7 @@ for t in range(num_tensors_3):
 
 input_4 = np.load('yelp_trainable.npy', allow_pickle=True).item()
 block_size_4 = input_4.get('block_size')
+#unique_blocks_4 = len(input_4.get('list_blocks'))
 tensor_shapes_4 = input_4.get('blocked_tensor_dimension')
 tensor_mapping_4 = input_4.get('tensor_mapping')
 num_tensors_4 = len(tensor_shapes_4)
@@ -91,7 +95,7 @@ for t in range(num_tensors_5):
         for j in range(snd):
             l.append(tensor_mapping_5[t].get((i,j)))
     list_of_tensors.append(l)
-
+    
 num_tensors = num_tensors_1 + num_tensors_2 + num_tensors_3 + num_tensors_4 + num_tensors_5
 
 #print(list_of_tensors)
@@ -266,63 +270,52 @@ def generate_random_tensors(
 
     return tensors, total_blocks
 
-blocks_in_page = 5 # page can have 10 blocks
+blocks_in_page = 5 # page can have 5 blocks
 P = set()
 start = timeit.default_timer()
-P = bin_pack_dp_greedy(list_of_tensors, blocks_in_page)
+P, tensor_page_mapping = bin_pack_greedy(list_of_tensors, blocks_in_page)
 
 stop = timeit.default_timer()
 print('Time: ', stop - start) 
 L = list(P)
 print(L[0].numBins)
+block_page_list = L[0].p_i_j
 
 
 # In[ ]:
 
 
 import numpy as np
+block_page_list = L[0].p_i_j
+block_page_mapping = dict()
+for i in range(len(block_page_list)):
+    block_page_index = block_page_list[i].index(1)
+    block_page_mapping[i] = block_page_index
+#print("block_page_mapping\n")
+#print(block_page_mapping)
+
+#tensor_page_mapping = dict()
+#tensor_page_whole_mapping = dict()
+#for t in range(num_tensors):
+#    one_tensor = list_of_tensors[t]
+#    tensor_len = len(one_tensor)
+#    one_tensor_set = set()
+#    one_tensor_whole_list = list()
+#    for i in range(tensor_len):
+#        page_id = block_page_mapping.get(one_tensor[i])
+#        one_tensor_set.add(page_id)
+#        one_tensor_whole_list.append(page_id)
+#    one_tensor_list = list(one_tensor_set)
+#    tensor_page_mapping[t] = one_tensor_list
+#    tensor_page_whole_mapping[t] = one_tensor_whole_list
+#
+#print("tensor_page_mapping\n")
+#print(tensor_page_mapping)
 
 output = dict()
-for i in range(len(L)):
-    block_page_list = L[i].p_i_j
-    print(block_page_list)
-    block_page_mapping = dict()
-    for i in range(len(block_page_list)):
-        block_page_index = block_page_list[i].index(1)
-        print(block_page_index)
-        block_page_mapping[i] = block_page_index
-    #print("block_page_mapping:")
-    #print(block_page_mapping)
-    
-    max_len = len(max(block_page_list, key=len))
-    print(max_len)
-    
-    tensor_page_mapping = dict()
-    for t in range(num_tensors):
-        one_tensor_set = set()
-        this_tensor = list_of_tensors[t]
-        for j in range(max_len):
-            for k in range(len(block_page_list)):
-                block_page_item = block_page_list[k]
-                if (j > len(block_page_item)):
-                    break
-                elif ((block_page_item[j] == 1 and k in this_tensor) or 
-                      (block_page_item[j] == 0)):
-                    if (k == len(block_page_list)-1):
-                        one_tensor_set.add(j)
-                    else:
-                        continue
-                else:
-                    break
-        one_tensor_list = list(one_tensor_set)
-        tensor_page_mapping[t] = one_tensor_list
-    #print("tensor_page_mapping:")
-    #print(tensor_page_mapping)
-    
-    output['block_page_mapping'+str(i)] = block_page_mapping
-    output['tensor_page_mapping'+str(i)] = tensor_page_mapping
-
-np.save('dp_greedy_page_pack_output.npy',output)
+output['block_page_mapping'] = block_page_mapping
+output['tensor_page_mapping'] = tensor_page_mapping
+np.save('greedy_page_pack_output.npy',output)
 
 
 # In[ ]:

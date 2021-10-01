@@ -8,7 +8,10 @@ import numpy as np
 import sys
 #file_path = sys.argv[1]
 #input = np.load(file_path, allow_pickle=True).item()
-input = np.load('detector_output.npy', allow_pickle=True).item()
+#input = np.load('detector_output.npy', allow_pickle=True).item()
+#input = np.load('detector_output_diff_size_unshared_located_random.npy', allow_pickle=True).item()
+#input = np.load('detector_output_same_size_unshared_located_random.npy', allow_pickle=True).item()
+input = np.load('detector_output_same_size_unshared_located_at_last.npy', allow_pickle=True).item()
 block_size = input.get('block_size')
 unique_blocks = len(input.get('list_blocks'))
 tensor_shapes = input.get('blocked_tensor_dimension')
@@ -196,7 +199,7 @@ def generate_random_tensors(
 
     return tensors, total_blocks
 
-blocks_in_page = 10 # page can have 10 blocks
+blocks_in_page = 5 # page can have 5 blocks
 P = set()
 start = timeit.default_timer()
 P = bin_pack_dp(list_of_tensors, blocks_in_page)
