@@ -7,6 +7,7 @@ from sympy.utilities.iterables import multiset_combinations
 import itertools
 import hashlib
 import numpy as np
+import gc
 
 class BinPackingScheme(object):
     def __init__(self, item_ids, l):
@@ -234,6 +235,8 @@ def pack(t, l):
             #items = 0
             while seen_perm.get(key, False):
                 # print(f"Skipping")
+                del key
+                gc.collect()
                 orderedList = next(nextPermutation)
                 #orderedList = nextPermutation[items]
                 #items += 1
