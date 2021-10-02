@@ -5,9 +5,68 @@ from numpy.lib.arraysetops import isin
 from sympy.utilities.iterables import multiset_permutations
 from sympy.utilities.iterables import multiset_combinations
 import itertools
+from math import factorial
 import hashlib
 import numpy as np
 import gc
+
+# Python program to demonstrate
+# stack implementation using a linked list.
+# node class
+class Node:
+   def __init__(self, value):
+      self.value = value
+      self.next = None
+ 
+class Stack:
+   # Initializing a stack.
+   # Use a dummy node, which is
+   # easier for handling edge cases.
+   def __init__(self):
+      self.head = Node("head")
+      self.size = 0
+ 
+   # String representation of the stack
+   def __str__(self):
+      cur = self.head.next
+      out = ""
+      while cur:
+         out += str(cur.value) + "->"
+         cur = cur.next
+      return out[:-3]  
+ 
+   # Get the current size of the stack
+   def getSize(self):
+      return self.size
+    
+   # Check if the stack is empty
+   def isEmpty(self):
+      return self.size == 0
+    
+   # Get the top item of the stack
+   def peek(self):
+       
+      # Sanitary check to see if we
+      # are peeking an empty stack.
+      if self.isEmpty():
+         raise Exception("Peeking from an empty stack")
+      return self.head.next.value
+ 
+   # Push a value into the stack.
+   def push(self, value):
+      node = Node(value)
+      node.next = self.head.next
+      self.head.next = node
+      self.size += 1
+      
+   # Remove a value from the stack and return.
+   def pop(self):
+      if self.isEmpty():
+         raise Exception("Popping from an empty stack")
+      remove = self.head.next
+      self.head.next = self.head.next.next
+      self.size -= 1
+      return remove.value
 
 class BinPackingScheme(object):
     def __init__(self, item_ids, l):
@@ -184,6 +243,54 @@ def itera(orderedList, all_combinations, current_combinations,l):
     elif current_combinations != []:
         all_combinations.append(current_combinations)
 
+# Compute the total number of unique k-combinations in a set of n elements.
+# There are more efficient implementations of the choose function, but
+# that's not the main point of this snippet.
+def choose(n, k):
+    if n < k:
+        return 0
+    return factorial(n) / (factorial(k) * factorial(n - k))
+
+# Compute the mth combination in lexicographical order from a set of n
+# elements chosen k at a time.
+def combination(n, k, m):
+    result = []
+    a      = n
+    b      = k
+    x      = (choose(n, k) - 1) - m
+    for i in range(0, k):
+        a = a - 1
+        while choose(a, b) > x:
+            a = a - 1
+        result.append(n - 1 - a)
+        x = x - choose(a, b)
+        b = b - 1
+    return result
+
+def itera_stack(orderedList, all_combinations, l):
+    wait_for = Stack()
+    wait_for.push(list(orderedList))
+    be_processed = Stack()
+    ini_list = list()
+    be_processed.push(ini_list)
+
+    while(wait_for.isEmpty() == False):
+        current_list = wait_for.pop()
+        current_processed = be_processed.pop()
+        #print(current_list,current_processed)
+        list_combinations_of_n = list(multiset_combinations(current_list, min(l,len(current_list))))
+        for seleted_items in list_combinations_of_n:
+            # print(type(seleted_items))
+            new_wait = list(set(current_list) - set(seleted_items))
+            new_processed = current_processed.copy()
+            new_processed.extend(seleted_items)
+            #print(new_wait, new_processed)
+            if(len(new_wait) != 0):
+                wait_for.push(new_wait)
+                be_processed.push(new_processed)
+            else:
+                all_combinations.append(new_processed)
+
 def pack(t, l):
     I = set(t)
     #print('t=',t)
@@ -200,31 +307,33 @@ def pack(t, l):
     }
 
     all_combinations = list()
-    current_combinations = list()
-    itera(orderedList, all_combinations, current_combinations,l)
+    #current_combinations = list()
+    #itera(orderedList, all_combinations, current_combinations,l)
+    itera_stack(orderedList, all_combinations, l)
     #print(all_combinations)
     nextPermutation = ( y for y in all_combinations)
     
-    perm = 0
+    #perm = 0
     while orderedList:
         #print(f"Permutation {perm}")
-        perm += 1
+        #perm += 1
 
         i, j = 0, 0
         p_i_j = BinPackingScheme(orderedList, l)
-        for item in orderedList:
+        for item in range(len(orderedList)):
             #print('Item=', item)
             # Use 1-index according to logic
             #i = I.index(item)
-            i = I.index(item)
-            j = math.ceil(orderedList.index(item) / l)
-            #j = int(i/l)
-            #j = int(orderedList.index(item) / l)
-            #print("i")
+            i = I.index(orderedList[item-1])
             #print(i)
-            #print("j")
-            #print(j)
+            #j = math.ceil(orderedList.index(item) / l)
+            j = math.ceil(item / l)
             p_i_j.mark(i, j)
+
+
+            #j = I.index(items[i - 1]) + 1
+            ##s = math.ceil(j / l)
+            #s = math.ceil(i / l)
 
         p_k.append(p_i_j)
         P = P.union(set([p_k[k]]))
@@ -240,8 +349,7 @@ def pack(t, l):
                 orderedList = next(nextPermutation)
                 #orderedList = nextPermutation[items]
                 #items += 1
-                #print("orderedList:")
-                #print(orderedList)
+                #print("orderedList:", orderedList)
                 key = frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l))
             seen_perm[key] = True
         except StopIteration:
@@ -268,14 +376,20 @@ def adjust(P_star, t, l):
     minNumBins = math.inf
     P = set()
 
+    #print(len(P_star))
+
     # P_k is a BinPackingScheme which is a 2-D array -
     # If Pij = 0, it means block i is not in page j;
     # If Pij = 1, it means block i is in page j.
     for P_k in P_star:
+        #print('P_k=',P_k.numBins)
+        #print(P_k.p_i_j)
         bin_set, used_bins = P_k.findMinBinsMaxCover(I,l)
         #tensor_page_set = used_bins
         I_delta = I - bin_set
         I_delta = list(I_delta)
+
+        #print('I_delta=',I_delta)
 
         if not I_delta:
             if P_k.numBins == minNumBins:
@@ -306,6 +420,7 @@ def adjust_greedy(P_star, t, l):
 
     minNumBins = math.inf
     P = set()
+    #print(len(P_star))
 
     # P_k is a BinPackingScheme which is a 2-D array -
     # If Pij = 0, it means block i is not in page j;
@@ -313,9 +428,9 @@ def adjust_greedy(P_star, t, l):
     for P_k in P_star:
         bin_set, used_bins= P_k.findMinBinsMaxCover(I,l)
         I_delta = I - bin_set
-
         #print(I_delta)
         I_delta = list(I_delta)
+        #print('I_delta=',I_delta)
 
         if not I_delta:
             P = P.union(set([P_k]))
