@@ -278,7 +278,18 @@ def itera_stack(orderedList, all_combinations, l):
         current_list = wait_for.pop()
         current_processed = be_processed.pop()
         #print(current_list,current_processed)
+
+        #list_combinations_of_n = list()
+        #for i in range(min(l,len(current_list)), len(current_list)+1):
+           #this_list = list(multiset_combinations(current_list, i))
+           #for j in range(len(this_list)):
+                #list_combinations_of_n.append(this_list[j])
         list_combinations_of_n = list(multiset_combinations(current_list, min(l,len(current_list))))
+
+
+        print('start')
+        print(list_combinations_of_n)
+        print('end')
         for seleted_items in list_combinations_of_n:
             # print(type(seleted_items))
             new_wait = list(set(current_list) - set(seleted_items))
@@ -291,29 +302,131 @@ def itera_stack(orderedList, all_combinations, l):
             else:
                 all_combinations.append(new_processed)
 
-def pack(t, l):
-    I = set(t)
-    #print('t=',t)
-    I = list(I)
+def itera_new(orderedList, all_combinations, l):
+    this_list = list(multiset_combinations(orderedList, min(l,len(orderedList))))
+    for i in range(len(this_list)):
+        all_combinations.append(this_list[i])
 
+def pack(t, org_t, l, list_of_real_len, all_combinations):
+    #I = set(t)
+    #print('t=',t)
+    #I = list(I)
+    print('org_t',org_t)
+    L = org_t
+    I = t
     P = set()
     orderedList = I
     k = 0
     p_k = []
 
+
+    min_combination = l - 1
+    for i in range(len(list_of_real_len)):
+        if(list_of_real_len[i] < min_combination):
+            min_combination = list_of_real_len[i]%l
+
+
     #nextPermutation = list()
     seen_perm = {
-        frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l)): True
+        frozenset(frozenset(org_t[i:i + l]) for i in range(0, len(org_t), l)): True
     }
 
-    all_combinations = list()
+    #all_combinations = list()
     #current_combinations = list()
     #itera(orderedList, all_combinations, current_combinations,l)
-    itera_stack(orderedList, all_combinations, l)
-    #print(all_combinations)
+
+    for i in range(min_combination, min(len(orderedList)+1,l+1)):
+        itera_new(orderedList, all_combinations, i)
+
+    print('all_combinations',len(all_combinations))
+
+    print(all_combinations)
     nextPermutation = ( y for y in all_combinations)
-    
+
+    print(org_t)
+    perm = 0
+
+    while org_t:
+        #print(f"Permutation {perm}")
+        #perm += 1
+        next_tuple_list = list()
+        curr_com = all_combinations[perm]
+        n = 0
+        for i in range(len(curr_com)):
+            if (i == 0):
+                mytuple = (curr_com[i],0)
+                next_tuple_list.append(mytuple)
+            else:
+                if(curr_com[i] != curr_com[i - 1]):
+                    n = 0
+                    mytuple = (curr_com[i],n)
+                    next_tuple_list.append(mytuple)
+                else:
+                    n = n + 1
+                    mytuple = (curr_com[i],n)
+                    next_tuple_list.append(mytuple)
+
+        print('next_tuple_list', next_tuple_list)
+        i, j = 0, 0
+        p_i_j = BinPackingScheme(L, l)
+
+        for item in range(len(next_tuple_list)):
+            #print('Item=', item)
+            # Use 1-index according to logic
+            #i = I.index(item)
+            i = L.index(next_tuple_list[item])
+            #print(i)
+            #j = math.ceil(orderedList.index(item) / l)
+            #j = math.ceil(item / l)
+            j = int(item / l) + 1
+            #j = 1
+            #print(j)
+            p_i_j.mark(i, j)
+
+
+            #j = I.index(items[i - 1]) + 1
+            ##s = math.ceil(j / l)
+            #s = math.ceil(i / l)
+
+        remaining_list = list(set(L)-set(next_tuple_list))
+        print('remaining_list',remaining_list)
+        for item in range(len(remaining_list)):
+            #print('Item=', item)
+            # Use 1-index according to logic
+            #i = I.index(item)
+            i = L.index(remaining_list[item])
+            #print(i)
+            #j = math.ceil(orderedList.index(item) / l)
+            #j = math.ceil(item / l) + 1
+            j = int(item / l) + 2
+            #j = 2
+            #print(j)
+            p_i_j.mark(i, j)
+
+        p_k.append(p_i_j)
+        P = P.union(set([p_k[k]]))
+        k = k + 1
+
+        try:
+            key = frozenset(frozenset(org_t[i:i + l]) for i in range(0, len(org_t), l))
+            #items = 0
+            while seen_perm.get(key, False):
+                # print(f"Skipping")
+                del key
+                gc.collect()
+                org_t = next(nextPermutation)
+                perm = perm + 1
+                #orderedList = nextPermutation[items]
+                #items += 1
+                #print("orderedList:", orderedList)
+                key = frozenset(frozenset(org_t[i:i + l]) for i in range(0, len(org_t), l))
+            seen_perm[key] = True
+        except StopIteration:
+            org_t = None
+
+
     #perm = 0
+    '''
     while orderedList:
         #print(f"Permutation {perm}")
         #perm += 1
@@ -354,6 +467,73 @@ def pack(t, l):
             seen_perm[key] = True
         except StopIteration:
             orderedList = None
+    '''
+
+    # A set of BinPackingScheme's, each BinPackingScheme is a 2-D array -
+    # If Pij = 0, it means block i is not in page j;
+    # If Pij = 1, it means block i is in page j.
+    return P
+
+def pack_for_adjust(t, l):
+    I = set(t)
+    #print('t=',t)
+    I = list(I)
+
+    P = set()
+    orderedList = I
+    k = 0
+    p_k = []
+
+    #nextPermutation = list()
+    #seen_perm = {
+    #    frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l)): True
+    #}
+
+    #all_combinations = list()
+    #current_combinations = list()
+    #itera(orderedList, all_combinations, current_combinations,l)
+    #itera_stack(orderedList, all_combinations, l)
+    #print(all_combinations)
+    #nextPermutation = ( y for y in all_combinations)
+    
+    #perm = 0
+    #while orderedList:
+        #print(f"Permutation {perm}")
+        #perm += 1
+
+    i, j = 0, 0
+    p_i_j = BinPackingScheme(orderedList, l)
+    for item in range(len(orderedList)):
+        i = I.index(orderedList[item-1])
+        #print(i)
+        #j = math.ceil(orderedList.index(item) / l)
+        j = math.ceil(item / l) + 2
+        p_i_j.mark(i, j)
+
+
+            #j = I.index(items[i - 1]) + 1
+            ##s = math.ceil(j / l)
+            #s = math.ceil(i / l)
+
+    p_k.append(p_i_j)
+    P = P.union(set([p_k[k]]))
+    k = k + 1
+
+        #try:
+        #    key = frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l))
+            #items = 0
+        #    while seen_perm.get(key, False):
+                # print(f"Skipping")
+        #        del key
+        #        gc.collect()
+        #        orderedList = next(nextPermutation)
+                #orderedList = nextPermutation[items]
+                #items += 1
+                #print("orderedList:", orderedList)
+        #        key = frozenset(frozenset(orderedList[i:i + l]) for i in range(0, len(orderedList), l))
+        #    seen_perm[key] = True
+        #except StopIteration:
+        #    orderedList = None
 
     # A set of BinPackingScheme's, each BinPackingScheme is a 2-D array -
     # If Pij = 0, it means block i is not in page j;
@@ -368,10 +548,15 @@ def pack(t, l):
            A bin-packing scheme is a set of bins
 """
 
-def adjust(P_star, t, l):
+def adjust_greedy(P_star, t, org_t, l):
 
     # Again, t can have duplicates?
-    I = set(t)
+    #I = set(t)
+
+    I = set(org_t)
+    #I = t
+
+    #I = t
 
     minNumBins = math.inf
     P = set()
@@ -383,13 +568,16 @@ def adjust(P_star, t, l):
     # If Pij = 1, it means block i is in page j.
     for P_k in P_star:
         #print('P_k=',P_k.numBins)
-        #print(P_k.p_i_j)
+        print(P_k.p_i_j)
         bin_set, used_bins = P_k.findMinBinsMaxCover(I,l)
+
+        print('bin_set',bin_set)
         #tensor_page_set = used_bins
         I_delta = I - bin_set
+
         I_delta = list(I_delta)
 
-        #print('I_delta=',I_delta)
+        print('I_delta=',I_delta)
 
         if not I_delta:
             if P_k.numBins == minNumBins:
@@ -400,7 +588,7 @@ def adjust(P_star, t, l):
                     P = set([P_k])
                     minNumBins = P_k.numBins
         else:
-            P_prime = pack(I_delta, l)
+            P_prime = pack_for_adjust(I_delta, l)
             for P_dash in P_prime:
                 P_new = P_dash.merge(P_k)
                 #P_new = P_dash.union(P_k)
@@ -414,9 +602,11 @@ def adjust(P_star, t, l):
     #tensor_page_mapping[i] = tensor_page_set
     return P
     
-def adjust_greedy(P_star, t, l):
+def adjust(P_star, t, org_t, l, all_combinations):
     # Again, t can have duplicates?
-    I = set(t)
+    #I = set(t)
+
+    I = set(org_t)
 
     minNumBins = math.inf
     P = set()
@@ -425,17 +615,43 @@ def adjust_greedy(P_star, t, l):
     # P_k is a BinPackingScheme which is a 2-D array -
     # If Pij = 0, it means block i is not in page j;
     # If Pij = 1, it means block i is in page j.
+    which_com = 0
     for P_k in P_star:
-        bin_set, used_bins= P_k.findMinBinsMaxCover(I,l)
-        I_delta = I - bin_set
-        #print(I_delta)
+
+        next_tuple_list = list()
+        curr_com = all_combinations[which_com]
+        n = 0
+        for i in range(len(curr_com)):
+            if (i == 0):
+                mytuple = (curr_com[i],0)
+                next_tuple_list.append(mytuple)
+            else:
+                if(curr_com[i] != curr_com[i - 1]):
+                    n = 0
+                    mytuple = (curr_com[i],n)
+                    next_tuple_list.append(mytuple)
+                else:
+                    n = n + 1
+                    mytuple = (curr_com[i],n)
+                    next_tuple_list.append(mytuple)
+
+        print('next_tuple_list', next_tuple_list)
+
+        #print('P_k', P_k.p_i_j)
+        #bin_set, used_bins= P_k.findMinBinsMaxCover(org_t,l)
+
+        which_com = which_com + 1
+        #I_delta = I - bin_set
+        I_delta = I - set(next_tuple_list)
+
+        print('I_delta=',I_delta)
         I_delta = list(I_delta)
         #print('I_delta=',I_delta)
 
         if not I_delta:
             P = P.union(set([P_k]))
         else:
-            P_prime = pack(I_delta, l)
+            P_prime = pack_for_adjust(I_delta, l)
             for P_dash in P_prime:
                 P_new = P_dash.merge(P_k)
                 P = P.union(set([P_new]))
@@ -452,6 +668,24 @@ def test_adjust():
 
     P = adjust(P_star, t2, l)
 
+def direct_pack(I, l):
+    i, j = 0, 0
+    p_i_j = BinPackingScheme(I, l)
+
+    # Process at all items in t0
+    for i in range(1, len(items) + 1):
+        # Use 1-index according to logic
+        j = I.index(items[i - 1]) + 1
+        #s = math.ceil(j / l)
+        s = math.ceil(i / l)
+        tensor_page_set.add(s-1)
+        #print('j=',j)
+        #print('s=',s)
+        p_i_j.mark(j, s)
+
+    numBins = math.ceil(len(items) / l)
+    p_i_j.numBins = numBins
+    tensor_page_mapping[0] = tensor_page_set
 
 """
 INPUT1: T (A set of tensors, each tensor is a set of block ids) - each can have duplicates?
@@ -459,18 +693,52 @@ INPUT2: l (the maximum number of items that can be held in a bin)
 OUTPUT: P={𝑃𝑖} (a list of optimal bin-packing schemes)
 """
 
-def bin_pack_dp(T, l):
-    initialized = False
-    P_star = None
-    tensor_page_mapping = dict()
-    tensor_page_set = set()
-    for t_i in T:
-        if not initialized:
-            P_star = pack(t_i, l)
-            initialized = True
+def bin_pack_dp(T, org_T, l, list_of_real_len, flag):
+    wait_for_tensor = Stack()
+    wait_for_length = Stack()
+    wait_for_org = Stack()
+    wait_for_tensor.push(T)
+    wait_for_length.push(list_of_real_len)
+    wait_for_org.push(org_T)
+    while(wait_for_org.isEmpty() == False):
+        T = wait_for_tensor.pop()
+        org_T = wait_for_org.pop()
+        list_of_real_len = wait_for_length.pop()
+        if((max(list_of_real_len) <= l) & (flag == True)):
+            direct_pack(org_T,l)
         else:
-            P_star = adjust(P_star, t_i, l)
-
+            initialized = False
+            P_star = None
+            tensor_page_mapping = dict()
+            tensor_page_set = set()
+            all_combinations = list()
+            min_combination = l - 1
+            for i in range(len(list_of_real_len)):
+                if(list_of_real_len[i] < min_combination):
+                    min_combination = (list_of_real_len[i]-(int(list_of_real_len[i]/l)-1)*list_of_real_len[i])
+            for i in range(len(T)):
+                if(len(T[i]) >= min_combination):
+                    new_list = list()
+                    new_list_length = list()
+                    new_list_org = list()
+                    new_list.append(T[i])
+                    new_list_length.append(list_of_real_len[i])
+                    new_list_org.append(org_T[i])
+                    for j in range(len(T)):
+                        if (i!=j):
+                            new_list.append(T[j])
+                            new_list_length.append(list_of_real_len[j])
+                            new_list_org.append(org_T[j])
+                    wait_for_tensor.push(new_list)
+                    wait_for_length.push(new_list_length)
+                    wait_for_org.push(new_list_org)
+            for i in range(len(T)):
+                if not initialized:
+                    P_star = pack(T[i], org_T[i], l, list_of_real_len, all_combinations)
+                    initialized = True
+                    print('P_star', len(P_star))
+                else:
+                    P_star = adjust(P_star, T[i], org_T[i], l, all_combinations)
     return P_star
 
 def bin_pack_dp_greedy(T, l):

@@ -12,7 +12,7 @@ import numpy as np
 
 list_of_tensors = list()
 
-input_1 = np.load('civil_trainable.npy', allow_pickle=True).item()
+input_1 = np.load('civil_trainable_more_shareable_blocks.npy', allow_pickle=True).item()
 block_size_1 = input_1.get('block_size')
 #unique_blocks_1 = len(input_1.get('list_blocks'))
 tensor_shapes_1 = input_1.get('blocked_tensor_dimension')
@@ -177,7 +177,7 @@ P = set()
 #list_of_tensors = order_tensors_by_small_size(list_of_tensors)
 start = timeit.default_timer()
 #P, tensor_page_mapping = bin_pack_greedy(list_of_tensors, blocks_in_page)
-P = bin_pack_base_id(list_of_tensors, blocks_in_page,688)
+P = bin_pack_base_id(list_of_tensors, blocks_in_page,658)
 stop = timeit.default_timer()
 print('Time: ', stop - start) 
 L = list(P)

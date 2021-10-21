@@ -12,7 +12,7 @@ import numpy as np
 
 list_of_tensors = list()
 
-input_1 = np.load('civil_trainable.npy', allow_pickle=True).item()
+input_1 = np.load('civil_trainable_more_shareable_blocks.npy', allow_pickle=True).item()
 block_size_1 = input_1.get('block_size')
 #unique_blocks_1 = len(input_1.get('list_blocks'))
 tensor_shapes_1 = input_1.get('blocked_tensor_dimension')
