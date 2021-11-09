@@ -78,6 +78,6 @@ inference_end = time.time()
 inference_time = inference_end - inference_start
 #print(output2)
 print('data loading time from postgres:', database_time)
-print('model laoding time from local h5 file and getting 1st layer:', model_time)
+print('model loading time from local h5 file and getting 1st layer:', model_time)
 print('matrix dot time between input and weights in 1st layer:', matrix_time)
 print('inference time in 2nd and 3rd layer:', inference_time)
