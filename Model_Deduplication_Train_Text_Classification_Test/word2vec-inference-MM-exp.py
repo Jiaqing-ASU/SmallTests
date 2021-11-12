@@ -12,7 +12,7 @@ from tensorflow.keras import layers
 import tensorflow_hub as hub
 from tensorflow.keras.models import Sequential
 
-#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 SEED = 42
 AUTOTUNE = tf.data.AUTOTUNE
@@ -20,12 +20,12 @@ AUTOTUNE = tf.data.AUTOTUNE
 vocab_size = 1009375
 embedding_dim = 500
 batch_size = 100
-num_models = 3
+num_models = 6
 
 class Word2Vec_MM():
     def __init__(self, input_weights):
-        self.weights = np.copy(tf.dtypes.cast(input_weights, tf.double))
-        #self.weights = np.copy(tf.dtypes.cast(input_weights, tf.float32))
+        #self.weights = np.copy(tf.dtypes.cast(input_weights, tf.double))
+        self.weights = np.copy(tf.dtypes.cast(input_weights, tf.float32))
 
     def predict(self, input_batch):
         return tf.matmul(input_batch, self.weights)
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     
     loading_start = time.time()
     targets = np.zeros([100,1009375])
-    if(loading_method == 1):
+    if(loading_method == "1"):
         print ("loading inputs from Postgres")
         # load input from postgres
         try:
@@ -69,10 +69,12 @@ if __name__ == "__main__":
         finally:
             if db_conn is not None:
                 db_conn.close()
-        targets = tf.dtypes.cast(targets, tf.double)
-    elif(loading_method == 2):
+        #targets = tf.dtypes.cast(targets, tf.double)
+        targets = tf.dtypes.cast(targets, tf.float32)
+    elif(loading_method == "2"):
         print ("loading inputs from CSV file")
-        targets = tf.dtypes.cast(np.load('inputs.npy'), tf.double)
+        #targets = tf.dtypes.cast(np.load('inputs.npy'), tf.double)
+        targets = tf.dtypes.cast(np.load('inputs.npy'), tf.float32)
     else:
         print("Invalid Input")
     loading_end = time.time()
