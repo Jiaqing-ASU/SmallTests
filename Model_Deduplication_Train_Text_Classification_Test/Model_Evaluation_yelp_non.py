@@ -5,9 +5,8 @@ import os
 import psycopg2
 import time
 
-# If run out of GPU memory, you can uncomment the following line to 
-# run inference on CPU.
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+# If run on CPU memory, uncomment the following line. On GPU, comment it.
+#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 #if not os.path.isfile('model_deduplication_dataset.zip'):
 #    model_deduplication_dataset_url = 'https://drive.google.com/uc?id=1nYzDDSJGkjCsVQI4gbSdC3DafQ7Ez107'
@@ -33,6 +32,7 @@ db_conn = psycopg2.connect(host=t_host, port=t_port, dbname=t_dbname, user=t_use
 db_cursor = db_conn.cursor()
 
 A = np.zeros([100,1009375])
+B = np.zeros([100,500])
 
 # load input from postgres
 database_start = time.time()
@@ -50,6 +50,7 @@ except (Exception, psycopg2.DatabaseError) as error:
 finally:
     if db_conn is not None:
         db_conn.close()
+A = np.float64(A)
 database_end = time.time()
 database_time = database_end - database_start
 
@@ -60,14 +61,22 @@ model = tf.keras.models.load_model(
 # get the weights from the 1st layer
 layer0 = model.get_layer(index = 0)
 weights = layer0.get_weights()
+print('finish loading model, changing dense to sparse')
 #weights = np.array(weights)
+sp_weights = tf.sparse.from_dense(weights)
+#sp_weights = tf.sparse.from_dense(layer0.get_weights())
+print('finish changing the tensor type')
+print(sp_weights.get_shape())
 model_end = time.time()
 model_time = model_end - model_start
 
 matrix_start = time.time()
 # matrix dot with weights in the 1st layer
 #B = np.dot(A,weights)
-B = tf.matmul(A,weights)
+#B = tf.matmul(A,weights)
+#sp_ids = np.where(A == 1)
+#B = tf.nn.embedding_lookup_sparse(sp_weights, sp_ids, combiner="sqrtn")
+B = tf.nn.embedding_lookup_sparse(A, sp_weights, combiner="sqrtn")
 matrix_end = time.time()
 matrix_time = matrix_end - matrix_start
 # run the data on the model from the 2nd layer
