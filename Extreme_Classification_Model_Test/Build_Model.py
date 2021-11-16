@@ -21,8 +21,8 @@ model.add(layers.Dense(units=14588, use_bias=True, activation=None))
 
 for layer in model.layers:
     a,b = layer.get_weights()[0].shape
-    w = tf.random.normal([a,b], stddev = 2, mean = 0, seed =1)
-    b = tf.random.normal((layer.get_weights()[1].shape), stddev = 2, mean = 0, seed =1)
+    w = tf.dtypes.cast(tf.random.normal([a,b], stddev = 2, mean = 0, seed =1), tf.float32)
+    b = tf.dtypes.cast(tf.random.normal((layer.get_weights()[1].shape), stddev = 2, mean = 0, seed =1), tf.float32)
     layer.set_weights([w, b])
 
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
