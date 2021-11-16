@@ -5,6 +5,9 @@ import pandas as pd
 from tensorflow.keras import layers
 import os
 
+# Comment it if on GPU
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 #w1 = tf.Variable(tf.random.normal([597540,1000], stddev = 2, mean = 0, seed =1))
 #b1 = tf.Variable(tf.random.normal([1000,], stddev = 2, mean = 0, seed =1))
 
@@ -23,7 +26,13 @@ for layer in model.layers:
     a,b = layer.get_weights()[0].shape
     w = tf.dtypes.cast(tf.random.normal([a,b], stddev = 2, mean = 0, seed =1), tf.float32)
     b = tf.dtypes.cast(tf.random.normal((layer.get_weights()[1].shape), stddev = 2, mean = 0, seed =1), tf.float32)
+    
+    #w = tf.dtypes.cast(tf.random.normal([a,b], stddev = 2, mean = 0, seed =1), tf.double)
+    #b = tf.dtypes.cast(tf.random.normal((layer.get_weights()[1].shape), stddev = 2, mean = 0, seed =1), tf.double)
+    
     layer.set_weights([w, b])
 
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
 model.save('extreme_classification_model.h5')
+#model.save('extreme_classification_model_double.h5')
