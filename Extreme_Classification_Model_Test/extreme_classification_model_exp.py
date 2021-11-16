@@ -29,8 +29,8 @@ if __name__ == "__main__":
     db_cursor = db_conn.cursor()
 
     print("loading model")
-    model = tf.keras.models.load_model(
-    'extreme_classification_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
+    #model = tf.keras.models.load_model('extreme_classification_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
+    model = tf.keras.models.load_model('extreme_classification_model_double.h5', custom_objects={'KerasLayer': hub.KerasLayer})
 
     loading_start = time.time()
     targets = np.zeros([1000, 597540])
@@ -50,15 +50,13 @@ if __name__ == "__main__":
         finally:
             if db_conn is not None:
                 db_conn.close()
-        #targets = tf.dtypes.cast(targets, tf.double)
-        targets = tf.dtypes.cast(targets, tf.float32)
+        targets = tf.dtypes.cast(targets, tf.double)
+        #targets = tf.dtypes.cast(targets, tf.float32)
     elif(loading_method == "2"):
         print ("loading inputs from CSV file")
-        #file = open("input_double.csv")
-        file = open("input_float.csv")
+        file = open("input_double.csv")
+        #file = open("input_float.csv")
         targets = np.loadtxt(file, delimiter=",")
-        #targets = tf.dtypes.cast(targets, tf.double)
-        targets = tf.dtypes.cast(targets, tf.float32)
     else:
         print("Invalid Input")
     loading_end = time.time()
