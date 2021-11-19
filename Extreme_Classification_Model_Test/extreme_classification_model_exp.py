@@ -13,8 +13,10 @@ import tensorflow_hub as hub
 from tensorflow.keras.models import Sequential
 from keras.initializers import Constant
 
+num_models = 2
+
 # Comment it if on GPU
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 if __name__ == "__main__":
 
@@ -30,7 +32,18 @@ if __name__ == "__main__":
 
     print("loading model")
     #model = tf.keras.models.load_model('extreme_classification_model.h5', custom_objects={'KerasLayer': hub.KerasLayer})
-    model = tf.keras.models.load_model('extreme_classification_model_double.h5', custom_objects={'KerasLayer': hub.KerasLayer})
+    model_list = []
+    for i in range(num_models):
+        model_list.append(tf.keras.models.load_model('extreme_classification_model_double.h5', custom_objects={'KerasLayer': hub.KerasLayer})) 
+    for i in range(num_models):
+        for layer in model_list[i].layers:
+            a,b = layer.get_weights()[0].shape
+            #w = tf.dtypes.cast(tf.random.normal([a,b], stddev = 2, mean = 0, seed =1), tf.float32)
+            #b = tf.dtypes.cast(tf.random.normal((layer.get_weights()[1].shape), stddev = 2, mean = 0, seed =1), tf.float32)
+            w = tf.dtypes.cast(tf.random.normal([a,b], stddev = 2, mean = 0, seed =1), tf.double)
+            b = tf.dtypes.cast(tf.random.normal((layer.get_weights()[1].shape), stddev = 2, mean = 0, seed =1), tf.double)
+        layer.set_weights([w, b])
+        model_list[i].compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     loading_start = time.time()
     targets = np.zeros([1000, 597540])
@@ -63,7 +76,7 @@ if __name__ == "__main__":
     print('data loading time', loading_end-loading_start, ' seconds')
     print("making inference")
     inference_start = time.time()
-    results = model.predict(targets)
+    for i in range(num_models):
+        results = model_list[i].predict(targets)
     inference_end = time.time()
-    print('inference time: ', inference_end-inference_start, ' seconds')
-    #print('inference time for ', num_models, ' models:', inference_end-inference_start, ' seconds')
+    print('inference time for ', num_models, ' models:', inference_end-inference_start, ' seconds')
