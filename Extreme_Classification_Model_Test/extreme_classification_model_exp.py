@@ -13,14 +13,14 @@ import tensorflow_hub as hub
 from tensorflow.keras.models import Sequential
 from keras.initializers import Constant
 
-num_models = 2
+num_models = 1
 
 # Comment it if on GPU
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 if __name__ == "__main__":
 
-    loading_method  = input("Enter 1 for loading from Postgres OR 2 for loading from CSV file\n")
+    loading_method  = input("Enter 0 for loading from memory OR 1 for loading from Postgres OR 2 for loading from CSV file\n")
     # connect with the postgres
     t_host = "localhost"
     t_port = "5432"
@@ -44,11 +44,15 @@ if __name__ == "__main__":
             b = tf.dtypes.cast(tf.random.normal((layer.get_weights()[1].shape), stddev = 2, mean = 0, seed =1), tf.double)
         layer.set_weights([w, b])
         model_list[i].compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-
+    
     loading_start = time.time()
-    targets = np.zeros([1000, 597540])
-    if(loading_method == "1"):
+    if(loading_method == "0"):
+        print ("loading inputs from Memory")
+        targets = np.random.randint(0, 1, (1000, 597540))
+        targets = tf.dtypes.cast(targets, tf.double)
+    elif(loading_method == "1"):
         print ("loading inputs from Postgres")
+        targets = np.zeros([1000, 597540])
         # load input from postgres
         try:
             for i in range(1000):
