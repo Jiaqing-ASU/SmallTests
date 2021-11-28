@@ -44,9 +44,11 @@ postgres=# \q
 ```
 
 And then run the following three python scripts in turn.
+```
 $python3 Load_Data_to_Postgres.py
 $python3 Load_Postgres_M_Col_Text.py
 $python3 Save_Input_to_CSV.py
+```
 
 ## Run the test program
 There are 2 kinds of methods are testing for text classification. Our tests for text classification based on the look up function are using float32 precision and the tests based on matrix multiplication are using double precision. word2vec-inference-MM-exp.py is using matrix multiplication and word2vec-inference-exp.py is using the look up function.
