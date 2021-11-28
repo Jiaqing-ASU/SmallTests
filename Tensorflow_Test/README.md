@@ -50,13 +50,19 @@ $python3 Save_Input_to_CSV.py
 
 ## Run the test program
 There are 2 kinds of methods are testing for text classification. Our tests for text classification based on the look up function are using float32 precision and the tests based on matrix multiplication are using double precision. word2vec-inference-MM-exp.py is using matrix multiplication and word2vec-inference-exp.py is using the look up function.
+
+For the word2vec-inference-MM-exp.py, which is using matrix multiplication in double precision, you can set the number of models you would like to test while running the python script. The default number of models is 1. The following is an example for running the tests for 2 models.
 ```
-$python3 word2vec-inference-MM-exp.py
-$python3 word2vec-inference-exp.py
+$python3 word2vec-inference-MM-exp.py 2
+```
+
+For the word2vec-inference-MM-exp.py, which is using look up function in float32 precision, you can also set the number of models you would like to test while running the python script. The default number of models is 1. The following is an example for running the tests for 2 models.
+```
+$python3 word2vec-inference-exp.py 2
 ```
 
 # Extreme Classification
-For extreme classification, please go to Extreme_Classification_Test folder.
+For extreme classification, please go to Extreme_Classification_Test folder. This code can run on both CPU and GPU environment as mentioned above. On r4.xlarge, it will run on CPU and on g4dn.2xlarge, it will run on GPU.
 
 ## Create the model
 Please create the model when running for the first time. The model is saved locally in H5 format. Please run:
@@ -82,7 +88,7 @@ $python3 Load_Postgres_M_Col.py
 $python3 Save_Input_to_CSV.py
 
 ## Run the test program
-The only one testing method for text classification, which is based on matrix multiplication is using double precision.
+The only one testing method for text classification, which is based on matrix multiplication is using double precision. Set the number of models you would like to test while running extreme_classification_model_exp.py. The default number of models is 1. The following is an example for running the tests for 2 models.
 ```
-$python3 extreme_classification_model_exp.py
+$python3 extreme_classification_model_exp.py 2
 ```
