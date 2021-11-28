@@ -4,7 +4,9 @@ This repository contains all the code for text classification and extreme classi
 
 # Environment
 AWS r4.xlarge for CPU testing and AWS g4dn.2xlarge for GPU testing.
+
 AMI Deep Learning Base AMI (Ubuntu 18.04) Version 45.0.
+
 TensorFlow 2.6.2
 
 ## Install TensorFlow Hub
@@ -43,11 +45,20 @@ Enter new password: <new-password>
 postgres=# \q
 ```
 
-And then run the following three python scripts in turn.
+And then run the following python script to save the input to CSV file. This script will generate two CSV files. One is named input_float.csv, which will be used for look up function testing and the other is named input_double.csv, which will be used for matrix multiplication testing.
+```
+$python3 Save_Input_to_CSV.py
+```
+
+For the word2vec-inference-MM-exp.py, which is using matrix multiplication in double precision, we have 2 methods saving in Postgres. One is saving all the features in one column and the other is saving in multiple columns. We have to run the following 2 python scripts to save the input to Postgres.
 ```
 $python3 Load_Data_to_Postgres.py
 $python3 Load_Postgres_M_Col_Text.py
-$python3 Save_Input_to_CSV.py
+```
+
+For the word2vec-inference-exp.py, which is using look up function in float32 precision, we only have one method saving in Postgres, which is saving all the features in one column. We have to run the following python script to save the input to Postgres.
+```
+$python3 Load_Data_to_Postgres_G.py
 ```
 
 ## Run the test program
@@ -58,7 +69,7 @@ For the word2vec-inference-MM-exp.py, which is using matrix multiplication in do
 $python3 word2vec-inference-MM-exp.py 2
 ```
 
-For the word2vec-inference-MM-exp.py, which is using look up function in float32 precision, you can also set the number of models you would like to test while running the python script. The default number of models is 1. The following is an example for running the tests for 2 models.
+For the word2vec-inference-exp.py, which is using look up function in float32 precision, you can also set the number of models you would like to test while running the python script. The default number of models is 1. The following is an example for running the tests for 2 models.
 ```
 $python3 word2vec-inference-exp.py 2
 ```

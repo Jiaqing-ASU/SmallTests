@@ -1,13 +1,5 @@
-# general template to evaluate text classification model
-
-# download text classification dataset
 import gdown
 import os
-
-#if not os.path.isfile('model_deduplication_dataset.zip'):
-#    model_deduplication_dataset_url = 'https://drive.google.com/uc?id=1nYzDDSJGkjCsVQI4gbSdC3DafQ7Ez107'
-#    gdown.download(model_deduplication_dataset_url, output=None, quiet=False)
-#    !unzip -qqq model_deduplication_dataset.zip
 
 w2v_wiki500_yelp_embed_nontrainable_model_url = 'https://drive.google.com/uc?id=1-6T6c5MaaceARapMnPBEj0KP_P1-rg0y'
 gdown.download(w2v_wiki500_yelp_embed_nontrainable_model_url, output=None, quiet=False)
