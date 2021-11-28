@@ -83,9 +83,11 @@ postgres=# \q
 ```
 
 And then run the following three python scripts in turn.
+```
 $python3 Load_Data_to_Postgres.py
 $python3 Load_Postgres_M_Col.py
 $python3 Save_Input_to_CSV.py
+```
 
 ## Run the test program
 The only one testing method for text classification, which is based on matrix multiplication is using double precision. Set the number of models you would like to test while running extreme_classification_model_exp.py. The default number of models is 1. The following is an example for running the tests for 2 models.
