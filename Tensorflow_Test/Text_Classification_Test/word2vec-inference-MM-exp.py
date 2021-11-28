@@ -116,6 +116,5 @@ if __name__ == "__main__":
     inference_start = time.time()
     for i in range(num_models):
         results = model_list[i].predict(targets)
-        print(results)
     inference_end = time.time()
     print('inference time for ', num_models, ' models:', inference_end-inference_start, ' seconds')
